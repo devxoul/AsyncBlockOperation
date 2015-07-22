@@ -40,7 +40,10 @@
 }
 
 - (void)start {
+    [self willChangeValueForKey:@"isExecuting"];
     self.isExecuting = YES;
+    [self didChangeValueForKey:@"isExecuting"];
+
     if (self.block) {
         self.block(self);
     } else {
@@ -49,8 +52,12 @@
 }
 
 - (void)complete {
+    [self willChangeValueForKey:@"isExecuting"];
+    [self willChangeValueForKey:@"isFinished"];
     self.isExecuting = NO;
     self.isFinished = YES;
+    [self didChangeValueForKey:@"isExecuting"];
+    [self didChangeValueForKey:@"isFinished"];
 }
 
 @end
