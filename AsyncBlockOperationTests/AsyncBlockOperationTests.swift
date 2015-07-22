@@ -1,36 +1,78 @@
+// The MIT License (MIT)
 //
-//  AsyncBlockOperationTests.swift
-//  AsyncBlockOperationTests
+// Copyright (c) 2015 Suyeol Jeon (xoul.kr)
 //
-//  Created by 전수열 on 7/22/15.
-//  Copyright (c) 2015 Suyeol Jeon. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
-import UIKit
+import AsyncBlockOperation
 import XCTest
 
 class AsyncBlockOperationTests: XCTestCase {
-    
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+
+    func delay(delay: Double, _ closure: () -> Void) {
+        let time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC)))
+        dispatch_after(time, dispatch_get_main_queue(), closure)
     }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
+
+    func testAddOperationWithAsyncBlock() {
+        let queue = NSOperationQueue()
+        queue.maxConcurrentOperationCount = 0
+        queue.addOperation(AsyncBlockOperation { _ in })
+        queue.addOperationWithAsyncBlock { _ in }
+        queue.addOperationWithAsyncBlock { _ in }
+        XCTAssertEqual(queue.operationCount, 3)
     }
-    
-    func testExample() {
-        // This is an example of a functional test case.
-        XCTAssert(true, "Pass")
-    }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measureBlock() {
-            // Put the code you want to measure the time of here.
+
+    func testCallComplete() {
+        let expectation = self.expectationWithDescription("Test")
+        var flag = false
+
+        let queue = NSOperationQueue()
+        queue.maxConcurrentOperationCount = 1
+        queue.addOperationWithAsyncBlock { op in
+            flag = true
+            op.complete()
         }
+        queue.addOperationWithAsyncBlock { op in
+            XCTAssertTrue(flag)
+            expectation.fulfill()
+        }
+        self.waitForExpectationsWithTimeout(0.5, handler: nil)
+    }
+
+    func testNotCallComplete() {
+        let expectation = self.expectationWithDescription("Test")
+        var flag = false
+
+        let queue = NSOperationQueue()
+        queue.maxConcurrentOperationCount = 1
+        queue.addOperationWithAsyncBlock { op in
+            // do not call op.complete()
+        }
+        queue.addOperationWithAsyncBlock { op in
+            flag = true
+        }
+        self.delay(0.5) {
+            XCTAssertFalse(flag)
+            expectation.fulfill()
+        }
+        self.waitForExpectationsWithTimeout(1, handler: nil)
     }
     
 }
