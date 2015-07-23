@@ -4,7 +4,7 @@ AsyncBlockOperation
 [![Build Status](https://travis-ci.org/devxoul/AsyncBlockOperation.svg)](https://travis-ci.org/devxoul/AsyncBlockOperation)
 [![CocoaPods](http://img.shields.io/cocoapods/v/AsyncBlockOperation.svg?style=flat)](https://cocoapods.org/pods/AsyncBlockOperation)
 
-NSOperation subclass for support async block.
+NSOperation subclass for async block.
 
 * [x] Both compatible with Swift and Objective-C.
 * [x] Light-weight. (4KB source code. Oh my god.)

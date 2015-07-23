@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = "AsyncBlockOperation"
   s.version      = "1.0.1"
-  s.summary      = "NSOperation subclass for support async block."
+  s.summary      = "NSOperation subclass for async block."
   s.homepage     = "https://github.com/devxoul/AsyncBlockOperation"
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
   s.author       = { "devxoul" => "devxoul@gmail.com" }
