@@ -6,6 +6,10 @@ AsyncBlockOperation
 
 NSOperation subclass for support async block.
 
+* [x] Both compatible with Swift and Objective-C.
+* [x] Light-weight. (4KB source code. Oh my god.)
+* [x] Short-hand method extension `NSOperationQueue`.
+
 
 At a Glance
 -----------
@@ -15,15 +19,36 @@ At a Glance
 ```swift
 import AsyncBlockOperation
 
-let queue = NSOperationQueue()
-
-/// Method 1. Using `AsyncBlockOperation` object
 let operation = AsyncBlockOperation { op in
-    op.complete() // call this method when async task finished
+    doSomeAsyncTaskWithCompletionBlock {
+        op.complete() // complete operation
+    }
 }
 queue.addOperation(operation)
+```
 
-/// Method 2. Using `NSOperationQueue` method
+**Objective-C**
+
+```objc
+#import <AsyncBlockOperation/AsyncBlockOperation.h>
+
+AsyncBlockOperation *operation = [AsyncBlockOperation blockOperationWithBlock:^(AsyncBlockOperation *op) {
+    [self doSomeAsyncTaskWithCompletionBlock:^{
+        [op complete]; // complete operation
+    }];
+}];
+[queue addOperation:operation];
+```
+
+
+Short-hand Method Extension
+---------------------------
+
+As `NSBlockOperation` does, `AsyncBlockOperation` supports `NSOperationQueue` extension to add async block operations quickly.
+
+**Swift**
+
+```swift
 queue.addOperationWithAsyncBlock { op in
     op.complete()
 }
@@ -32,20 +57,36 @@ queue.addOperationWithAsyncBlock { op in
 **Objective-C**
 
 ```objc
-#import <AsyncBlockOperation/AsyncBlockOperation.h>
-
-NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-
-// Method 1. Using `AsyncBlockOperation` object
-AsyncBlockOperation *operation = [AsyncBlockOperation blockOperationWithBlock:^(AsyncBlockOperation *op) {
-    [op complete]; // call this method when async task finished
-}];
-[queue addOperation:operation];
-
-// Method 2. Using `NSOperationQueue` method
 [queue addOperationWithAsyncBlock:^(AsyncBlockOperation *op) {
     [op complete];
 }];
+```
+
+
+Further Reading
+---------------
+
+Wanna get callback after all operations are done? Consider using [NSOperationQueue+CompletionBlock](https://github.com/devxoul/NSOperationQueue-CompletionBlock) which provides `completionHandler` for `NSOperationQueue`.
+
+For example:
+
+```swift
+let queue = NSOperationQueue()
+queue.completionHandler = {
+    println("All images are loaded!")
+}
+queue.addOperationWithAsyncBlock { op in
+    loadImage(imageURL1) { image in
+        image.append(image)
+        op.complete()
+    }
+}
+queue.addOperationWithAsyncBlock { op in
+    loadImage(imageURL2) { image in
+        image.append(image)
+        op.complete()
+    }
+}
 ```
 
 
